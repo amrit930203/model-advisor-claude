@@ -1,0 +1,200 @@
+# Eval cases for the model-cost-advisor skill.
+cases:
+
+  # ---- low complexity, premium model overkill ----
+  - id: classify_short_text
+    prompt: |
+      Classify each of these 200 customer messages as "billing", "technical",
+      or "other". Return a JSON array of {id, label}.
+    complexity: low
+    expect_nudge: tier
+    suggested_tier: haiku
+    notes: High-volume classification — clearest Haiku case.
+
+  - id: paraphrase_email
+    prompt: |
+      Rewrite this email to sound friendlier but keep the same meaning:
+      "Your invoice is overdue. Pay it."
+    complexity: low
+    expect_nudge: tier
+    suggested_tier: haiku
+    notes: Trivial rewrite. No reason to pay Opus rates.
+
+  - id: regex_extract
+    prompt: |
+      Write a regex that extracts US phone numbers in (xxx) xxx-xxxx and
+      xxx-xxx-xxxx formats from a paragraph.
+    complexity: low
+    expect_nudge: tier
+    suggested_tier: haiku
+    notes: Boilerplate code.
+
+  # ---- moderate complexity ----
+  - id: refactor_function
+    prompt: |
+      Refactor this Python function to use async/await and add proper error
+      handling. Preserve behavior. [function body omitted]
+    complexity: medium
+    expect_nudge: tier
+    suggested_tier: sonnet
+    notes: Standard coding task — Sonnet is the right call.
+
+  - id: summarize_meeting_notes
+    prompt: |
+      Summarize these 8 pages of meeting notes into a one-page exec brief.
+    complexity: medium
+    expect_nudge: tier
+    suggested_tier: sonnet
+    notes: Summarization with some judgment. Sonnet, not Opus.
+
+  # ---- genuinely complex — should NOT nudge ----
+  - id: architect_event_system
+    prompt: |
+      Design an event-driven architecture for a multi-tenant agreement
+      lifecycle platform. Cover identity, authorization, audit, state
+      transitions, failure modes, and at-least-once delivery semantics.
+    complexity: high
+    expect_nudge: none
+    suggested_tier: opus
+    notes: Multi-layer architectural reasoning. Opus is warranted.
+
+  - id: debug_race_condition
+    prompt: |
+      I have an intermittent race condition in this concurrent code that only
+      reproduces under load. Walk through possible causes and how to verify
+      each. [code omitted]
+    complexity: high
+    expect_nudge: none
+    suggested_tier: opus
+    notes: Hard debugging with subtle reasoning.
+
+  - id: nuanced_writing
+    prompt: |
+      Draft a board memo arguing both sides of whether we should sunset the
+      legacy product line. Tone: measured, executive, no hedging clichés.
+    complexity: high
+    expect_nudge: none
+    suggested_tier: opus
+    notes: Nuanced long-form writing.
+
+  # ---- context-bloat / missing-extractor failure mode ----
+  - id: pull_all_agreements_no_extractor
+    prompt: |
+      Look through all the agreements in the corpus and tell me which ones
+      auto-renew in the next 90 days, who the counterparty is, and what the
+      notice period is.
+    complexity: low
+    expect_nudge: context_bloat
+    suggested_tier: haiku
+    notes: |
+      Canonical missing-extractor case. The right behavior is to flag that
+      pulling all source docs into context will dominate token spend.
+
+  - id: search_all_support_tickets
+    prompt: |
+      Read through all support tickets from the last quarter and tell me the
+      top 5 root causes.
+    complexity: medium
+    expect_nudge: context_bloat
+    suggested_tier: sonnet
+    notes: Same pattern, different domain.
+
+  - id: scan_all_logs
+    prompt: |
+      Go through all of yesterday's application logs and find anomalies.
+    complexity: low
+    expect_nudge: context_bloat
+    suggested_tier: haiku
+    notes: Should suggest filtering / aggregating before any text hits the model.
+
+  # ---- both nudges apply ----
+  - id: batch_extract_on_opus
+    prompt: |
+      Using Opus, extract counterparty, effective_date, and termination_date
+      from each of these 5,000 contracts and put them in a CSV.
+    complexity: low
+    expect_nudge: both
+    suggested_tier: haiku
+    notes: High-volume extraction on Opus — both nudges apply.
+
+  # ---- negative control: looks bulky but is actually complex ----
+  - id: research_synthesis_long_context
+    prompt: |
+      I'm attaching 12 research papers on protein folding. Synthesize the
+      methodological disagreements between them and propose an experiment
+      that would resolve the strongest one.
+    complexity: high
+    expect_nudge: none
+    suggested_tier: opus
+    notes: Large input, but genuine multi-source reasoning. Premium model warranted.
+
+  # ---- stray-call patterns (the new family) ----
+  - id: everything_dump
+    prompt: |
+      Show me everything in our customer database. List all rows.
+    complexity: low
+    expect_nudge: stray/everything_dump
+    suggested_tier: haiku
+    notes: Unfiltered dump request. Should suggest a filter (date, status, owner) first.
+
+  - id: retry_on_failure
+    prompt: |
+      That answer was wrong, try again. Use a smarter model this time.
+    complexity: low
+    expect_nudge: stray/retry_on_failure
+    suggested_tier: sonnet
+    notes: |
+      User wants to throw a bigger model at the same prompt. Skill should ask
+      what was wrong first — usually a prompt fix is cheaper than a tier bump.
+
+  - id: infinite_refinement
+    prompt: |
+      Keep refining this email until it's perfect.
+    complexity: low
+    expect_nudge: stray/infinite_refinement
+    suggested_tier: sonnet
+    notes: Open-ended loop. Should propose a stopping criterion up front.
+
+  - id: implicit_batch
+    prompt: |
+      For each of these 200 product descriptions, generate a 3-sentence
+      marketing blurb. Here's the list: [...]
+    complexity: low
+    expect_nudge: stray/implicit_batch
+    suggested_tier: haiku
+    notes: |
+      200 items in one turn is a batch in disguise. Should suggest the Batch API
+      (50% off) or a programmatic loop instead of inline iteration.
+
+  - id: verbose_by_default
+    prompt: |
+      Give me a comprehensive, thorough analysis with multiple examples of
+      whether we should rename our product.
+    complexity: medium
+    expect_nudge: stray/verbose_by_default
+    suggested_tier: sonnet
+    notes: |
+      "Comprehensive + thorough + with examples" without the user saying they
+      need depth. Should offer a bulleted-first option before going long.
+
+  - id: recursive_expansion
+    prompt: |
+      Now elaborate on each of those 7 points, with examples for each.
+    complexity: low
+    expect_nudge: stray/recursive_expansion
+    suggested_tier: sonnet
+    notes: |
+      Cost doubles each time. Should suggest picking 1–2 points to deep-dive
+      rather than expanding all 7.
+
+  # ---- negative control for stray family ----
+  - id: legitimate_followup_expand
+    prompt: |
+      Of those three options, expand on the second one — that's the one I'm
+      most interested in.
+    complexity: low
+    expect_nudge: none
+    suggested_tier: sonnet
+    notes: |
+      User picked ONE thing to expand. This is healthy interactive behavior, not
+      recursive expansion. Skill should stay quiet.

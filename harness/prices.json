@@ -1,0 +1,15 @@
+{
+  "_comment": "Per-million-token prices in USD. Verified against docs.claude.com/en/docs/about-claude/pricing on 2026-05-28. Note: Opus 4.5+ dropped to $5/$25 from the legacy $15/$75 — make sure your harness numbers reflect this.",
+  "_source": "https://docs.claude.com/en/docs/about-claude/pricing",
+  "_verified_at": "2026-05-28",
+  "haiku":  {"input_per_mtok": 1.00,  "output_per_mtok": 5.00,  "_model": "Claude Haiku 4.5"},
+  "sonnet": {"input_per_mtok": 3.00,  "output_per_mtok": 15.00, "_model": "Claude Sonnet 4.6"},
+  "opus":   {"input_per_mtok": 5.00,  "output_per_mtok": 25.00, "_model": "Claude Opus 4.6 (legacy Opus 4/4.1 was $15/$75)"},
+  "_modifiers": {
+    "batch_api": "50% off both input and output — use for non-realtime workloads",
+    "cache_read": "0.1x base input price — use for repeated context (system prompts, doc corpora)",
+    "cache_write_5min": "1.25x base input price",
+    "cache_write_1hr": "2x base input price",
+    "data_residency_us": "1.1x multiplier on all rates if inference_geo='us'"
+  }
+}

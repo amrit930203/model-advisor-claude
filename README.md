@@ -15,7 +15,7 @@ Most Claude cost-advice tools focus on model tier. That made sense when Opus was
 
 **The skill is a piece of text. The harness is a measuring tape.** Concretely:
 
-- **`SKILL.md`** is the product. It's a markdown file Claude reads on every request. The frontmatter tells Claude *when* to trigger; the body tells Claude *what* to nudge about (tier overkill or context bloat) and *how* (one short line, then do the work anyway). You don't run it — Claude does, automatically, once the file is in your skills folder.
+- **`SKILL.md`** is the product. It's a markdown file Claude reads on every request. The frontmatter tells Claude *when* to trigger; the body tells Claude *what* to nudge about (tier overkill, context bloat, or one of six stray-waste patterns) and *how* (one short line, then do the work anyway). You don't run it — Claude does, automatically, once the file is in your skills folder.
 - **`harness/`** is the toolkit you use to verify the skill's claims. It doesn't run as part of the skill; it exists so anyone reviewing the repo can reproduce the numbers.
   - `run_harness.py` — runs the eval cases across Haiku/Sonnet/Opus and records real tokens.
   - `failure_mode_test.py` — fails the build if the cost gap claim collapses or the skill text loses the failure-pattern language.
@@ -61,19 +61,10 @@ git clone https://github.com/amrit930203/model-advisor-claude.git \
   ~/.claude/skills/model-cost-advisor
 ```
 
-Claude will pick it up automatically and trigger on tasks that match the description.
-
-## How it nudges
-
-**Tier nudge — when a task looks routine:**
-> This looks like a task a cheaper tier (e.g. Haiku/Sonnet) would handle just as well — you could switch to save cost. Happy to proceed here either way:
-
-**Context-bloat nudge — when the plan loads whole documents because no extractor exists:**
-> Before running this, a heads-up: pulling all the source documents into context every time will dominate your token spend — likely more than model choice does. If the repo doesn't already have a structured extractor or index, it's worth building one (parse the fields you actually need once, then have me query the table). Want me to scope that, or proceed with full-document loading for now?
-
-Either way, Claude completes the task.
+Claude will pick it up automatically and trigger on tasks that match the description. The exact nudge wording, the full decision logic, and the list of stray-waste patterns all live in [`SKILL.md`](SKILL.md) — that file is the source of truth.
 
 ## What the skill won't do
+
 - Refuse or delay work waiting for a decision.
 - Nudge repeatedly in the same conversation.
 - Nudge for genuinely complex tasks (deep reasoning, hard debugging, novel research, nuanced writing).
@@ -106,10 +97,9 @@ PRs welcome — see [CONTRIBUTING.md](CONTRIBUTING.md) for fork/attribution norm
 
 ## Contact
 
-- **Bug reports + feature requests:** [open a GitHub Issue](https://github.com/amrit930203/model-cost-advisor/issues).
-- **Reaching the author:** [@&lt;amrit930203/&gt;](https://github.com/amrit930203/) on GitHub.
+- **Bug reports + feature requests:** [open a GitHub Issue](https://github.com/amrit930203/model-advisor-claude/issues).
+- **Reaching the author:** [@amrit930203](https://github.com/amrit930203) on GitHub.
 - **Want to share how you're using it?** Discussions tab is open.
-
 
 ## License
 

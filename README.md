@@ -57,7 +57,7 @@ Drop `SKILL.md` into your Claude skills folder:
 cp SKILL.md ~/.claude/skills/model-cost-advisor/SKILL.md
 
 # Or clone the repo into the skills folder directly
-git clone https://github.com/<your-github-handle>/model-cost-advisor.git \
+git clone https://github.com/amrit930203/model-advisor-claude.git \
   ~/.claude/skills/model-cost-advisor
 ```
 
@@ -106,11 +106,10 @@ PRs welcome — see [CONTRIBUTING.md](CONTRIBUTING.md) for fork/attribution norm
 
 ## Contact
 
-- **Bug reports + feature requests:** [open a GitHub Issue](https://github.com/<your-github-handle>/model-cost-advisor/issues).
-- **Reaching the author:** [@&lt;your-github-handle&gt;](https://github.com/<your-github-handle>) on GitHub.
+- **Bug reports + feature requests:** [open a GitHub Issue](https://github.com/amrit930203/model-cost-advisor/issues).
+- **Reaching the author:** [@&lt;amrit930203/&gt;](https://github.com/amrit930203/) on GitHub.
 - **Want to share how you're using it?** Discussions tab is open.
 
-*(Replace `<your-github-handle>` with your GitHub username once the repo is up.)*
 
 ## License
 
